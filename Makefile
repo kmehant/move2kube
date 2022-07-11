@@ -195,3 +195,29 @@ endif
 	# To help with reusing layers and hence speeding up build
 	${CONTAINER_TOOL} push ${REGISTRYNS}/${BINNAME}-builder:${VERSION}
 	${CONTAINER_TOOL} push ${REGISTRYNS}/${BINNAME}:${VERSION}
+
+.PHONY: cbuildmulti
+cbuildmulti: ## Build multi arch container image
+ifndef CONTAINER_TOOL
+	$(error No container tool (docker, podman) found in your environment. Please, install one)
+endif
+	@echo "Building image for multiple architectures with $(CONTAINER_TOOL)"
+
+	for architecture in ${TARGETS}; do \
+		arch_name=$${architecture//\//-}; \
+		${CONTAINER_TOOL} build --platform $${architecture} --tag ${REGISTRYNS}/${BINNAME}-builder:${VERSION}-$${arch_name} --cache-from ${REGISTRYNS}/${BINNAME}-builder:${VERSION}-$${arch_name} --target builder --build-arg VERSION=${VERSION} --build-arg GO_VERSION=${GO_VERSION} --build-arg ARCH=$${arch_name} .; \
+		${CONTAINER_TOOL} push ${REGISTRYNS}/${BINNAME}-builder:${VERSION}-$${arch_name}; \
+		${CONTAINER_TOOL} manifest create ${REGISTRYNS}/${BINNAME}-builder:${VERSION} --amend ${REGISTRYNS}/${BINNAME}-builder:${VERSION}-$${arch_name}; \
+		${CONTAINER_TOOL} build --platform $${architecture} --tag ${REGISTRYNS}/${BINNAME}:${VERSION}-$${arch_name} --cache-from ${REGISTRYNS}/${BINNAME}-builder:${VERSION}-$${arch_name} --cache-from ${REGISTRYNS}/${BINNAME}:${VERSION}-$${arch_name} --build-arg VERSION=${VERSION} --build-arg GO_VERSION=${GO_VERSION} --build-arg ARCH=$${arch_name} .; \
+		${CONTAINER_TOOL} push ${REGISTRYNS}/${BINNAME}:${VERSION}-$${arch_name}; \
+		${CONTAINER_TOOL} manifest create ${REGISTRYNS}/${BINNAME}:${VERSION} --amend ${REGISTRYNS}/${BINNAME}:${VERSION}-$${arch_name}; \
+	done
+
+.PHONY: cpushmulti
+cpushmulti: ## Push multi arch container image
+ifndef CONTAINER_TOOL
+	$(error No container tool (docker, podman) found in your environment. Please, install one)
+endif
+	@echo "Pushing image for multiple architectures with $(CONTAINER_TOOL)"
+	${CONTAINER_TOOL} manifest push ${REGISTRYNS}/${BINNAME}-builder:${VERSION}
+	${CONTAINER_TOOL} manifest push ${REGISTRYNS}/${BINNAME}:${VERSION}
