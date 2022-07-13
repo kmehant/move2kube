@@ -24,8 +24,9 @@ ENV PATH=$GOPATH/bin:/usr/local/go/bin:$PATH
 
 # Download Go.
 ARG GO_VERSION=1.18
-ARG TARGETPLATFORM
-RUN export ARCH=${TARGETPLATFORM//\//-} && curl -o go.tgz "https://dl.google.com/go/go${GO_VERSION}.${ARCH}.tar.gz" \
+ENV DOCKER_BUILDKIT=1
+ARG TARGETARCH
+RUN curl -o go.tgz "https://dl.google.com/go/go${GO_VERSION}.${TARGETARCH}.tar.gz" \
     && tar -xzf go.tgz \
     && mv go /usr/local/ \
     && rm go.tgz

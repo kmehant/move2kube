@@ -18,7 +18,7 @@ BINDIR      := $(CURDIR)/bin
 DISTDIR		:= $(CURDIR)/_dist
 TARGETS     := darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64
 MULTI_ARCH_TARGET_PLATFORMS := linux/amd64,linux/arm64
-REGISTRYNS  ?= quay.io/konveyor
+REGISTRYNS  ?= docker.io/kmehant
 
 GOPATH        = $(shell go env GOPATH)
 GOX           = $(GOPATH)/bin/gox
@@ -39,7 +39,9 @@ GIT_TAG    = $(shell git tag --points-at | tail -n 1)
 GIT_DIRTY  = $(shell test -n "`git status --porcelain`" && echo "dirty" || echo "clean")
 HAS_NODE   = $(shell command -v node >/dev/null && echo true || echo false)
 
-GOGET     := cd / && GO111MODULE=on go install 
+GOGET     := cd / && GO111MODULE=on go install
+
+export DOCKER_BUILDKIT := 1
 
 ifdef VERSION
 	BINARY_VERSION = $(VERSION)
