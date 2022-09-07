@@ -8,10 +8,5 @@ spec:
   class: "ReadMeGenerator"
   directoryDetect:
     levels: 0
-  consumes: 
-    ContainerImagesPushScript:
-      merge: true
-    ContainerImagesBuildScript:
-      merge: true
-    KubernetesYamls:
-      merge: true
+  invokesByDefault:
+    enabled: true

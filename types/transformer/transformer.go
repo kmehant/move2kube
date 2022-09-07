@@ -46,6 +46,11 @@ type TransformerSpec struct {
 	OverrideSelector   labels.Selector                        `yaml:"-" json:"-"`
 	TemplatesDir       string                                 `yaml:"templates" json:"templates"` // Relative to yaml directory or working directory in image
 	Config             interface{}                            `yaml:"config" json:"config"`
+	InvokesByDefault   InvokesByDefault                       `yaml:"invokesByDefault" json:"invokesByDefault"`
+}
+
+type InvokesByDefault struct {
+	Enabled bool `yaml:"enabled" json:"enabled"`
 }
 
 // DirectoryDetect stores the config on how to iterate over the directories
